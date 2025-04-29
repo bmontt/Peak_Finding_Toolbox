@@ -10,7 +10,7 @@ abr_toolbox/
 ├── README.md                # Overview, installation, quickstart
 ├── setup.py / pyproject.toml # Packaging metadata
 ├── requirements.txt         # Core dependencies
-├── abr_toolbox/             # Main package
+├── toolbox/             # Main package
 │   ├── __init__.py
 │   ├── data_loader.py       # BIDS/MNE EEG and audio imports
 │   ├── preprocess.py        # Filtering, baseline correction, smoothing
@@ -19,6 +19,7 @@ abr_toolbox/
 │   ├── visualizer.py        # Interactive waveform & stats plots
 │   ├── utils.py             # Shared helpers (SNR, normalization)
 │   └── cli.py               # Command‐line interface via click or argparse
+        detectors.py
 ├── examples/                # Jupyter Notebooks and scripts
 │   ├── abr_analysis.ipynb   # End‐to‐end ABR workflow example
 │   ├── audio_onsets.ipynb   # Audio onset detection example

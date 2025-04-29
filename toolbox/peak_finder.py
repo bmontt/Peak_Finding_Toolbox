@@ -2,11 +2,11 @@
 abr_toolbox.peak_finder
 
 Adaptive and classical peak detection for ABR/audio signals, following the original ABR pipeline:
- 1) Predict anchor peak index (Wave V) using adaptive prominence
- 2) Gaussian smoothing of the full waveform scaled by noise level
- 3) Window from 0.5 ms before anchor to end for subsequent peaks
- 4) Detect peaks with SNR-adaptive prominence and minimum distance
- 5) Ensure inclusion of anchor and return first n_peaks sorted
+    1) Predict anchor peak index (Wave V) using adaptive prominence
+    2) Gaussian smoothing of the full waveform scaled by noise level
+    3) Window from 0.5 ms before anchor to end for subsequent peaks
+    4) Detect peaks with SNR-adaptive prominence and minimum distance
+    5) Ensure inclusion of anchor and return first n_peaks sorted
 """
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
@@ -30,8 +30,8 @@ def compute_snr(data: np.ndarray,
 
 
 def normalize_snr(snr_db: float,
-                  snr_min: float = -5,
-                  snr_max: float = 10) -> float:
+                    snr_min: float = -5,
+                    snr_max: float = 10) -> float:
     """
     Clip and normalize SNR (dB) to [0,1].
     """
@@ -40,9 +40,9 @@ def normalize_snr(snr_db: float,
 
 
 def scale_prominence(snr: float,
-                     base: float = 0.008,
-                     high: float = 0.025,
-                     curve: str = 'sqrt') -> float:
+                    base: float = 0.008,
+                    high: float = 0.025,
+                    curve: str = 'sqrt') -> float:
     """
     Map normalized SNR [0,1] to peak prominence threshold.
     """

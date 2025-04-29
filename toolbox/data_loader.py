@@ -86,3 +86,8 @@ def load_audio_file(filepath: str,
     """
     y, sr_out = librosa.load(filepath, sr=sr, mono=mono)
     return y, sr_out
+
+def load_hrir(filepath: str) -> np.ndarray:
+    # e.g. assume WAV impulse response
+    data, sr = librosa.load(filepath, sr=None, mono=True)
+    return data, sr
