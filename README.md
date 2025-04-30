@@ -1,4 +1,4 @@
-# A Flexible Peak-Finding and Analysis Toolkit for Evoked Potentials and Acoustic Impulse Responses
+# Peak-Finding and Analysis Toolkit for Evoked Potentials and Acoustic Impulse Responses
 
 This repository will be a **standalone Python package** for ABR analysis, built around your existing code, and designed for extensibility and ease of use by future PIRL researchers.
 
