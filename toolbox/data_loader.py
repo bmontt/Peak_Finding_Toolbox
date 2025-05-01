@@ -53,7 +53,7 @@ def load_eeg_bids(root: str,
                          session=session,
                          task=task,
                          run=run,
-                         datatype=datatype)
+                        datatype=datatype)
     raw = read_raw_bids(bids_path=bids_path, verbose=verbose)
     raw.load_data()
     if invert_channel is not None:
@@ -79,13 +79,13 @@ def load_audio_file(filepath: str,
 
     Returns
     -------
-    y : np.ndarray
+    a : np.ndarray
         Audio time series.
     sr_out : int
         Sampling rate.
     """
-    y, sr_out = librosa.load(filepath, sr=sr, mono=mono)
-    return y, sr_out
+    a, sr_out = librosa.load(filepath, sr=sr, mono=mono)
+    return a, sr_out
 
 def load_hrir(filepath: str) -> np.ndarray:
     # e.g. assume WAV impulse response

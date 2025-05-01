@@ -41,7 +41,8 @@ class BaseDetector(ABC):
         return _registry[name](**params)
 
 # --- ABR Adaptive Detector (integrates existing ABR pipeline) ---
-from toolbox.peak_finder import compute_snr, normalize_snr, predict_anchor_latency, detect_peaks as abr_detect
+from toolbox.abr_peak_finder import compute_snr_normalized, predict_wave_V_latency
+from toolbox.abr_peak_finder import detect_peaks as abr_detect
 
 @register_detector('abr_adaptive')
 class ABRAdaptiveDetector(BaseDetector):
@@ -53,10 +54,9 @@ class ABRAdaptiveDetector(BaseDetector):
         # Convert samples to time in milliseconds
         times_ms = np.arange(len(data)) / sr * 1000.0
         # Compute SNR and normalization
-        snr_db = compute_snr(data, times_ms)
-        snr_norm = normalize_snr(snr_db)
+        snr_norm = compute_snr_normalized(data, times_ms)
         # Predict anchor (Wave V)
-        anchor_idx = predict_anchor_latency(data, times_ms, snr_norm)
+        anchor_idx = predict_wave_V_latency(data, times_ms, snr_norm)
         # Delegate to existing ABR peak finder
         return abr_detect(
             data,
@@ -64,8 +64,7 @@ class ABRAdaptiveDetector(BaseDetector):
             anchor_idx,
             n_peaks=self.n_peaks,
             snr_norm=snr_norm,
-            base_sigma=self.base_sigma
-        )
+            base_sigma=self.base_sigma)
 
 # --- Classical SciPy Peak Detector ---
 from scipy.signal import find_peaks
@@ -83,8 +82,7 @@ class ScipyPeakDetector(BaseDetector):
         peaks, _ = find_peaks(
             data,
             prominence=self.prominence,
-            distance=dist_samples
-        )
+            distance=dist_samples)
         return peaks
 
 # --- Onset Envelope Detector (speech/music) ---
@@ -100,8 +98,7 @@ class OnsetEnvelopeDetector(BaseDetector):
             onset_envelope=env,
             backtrack=False,
             units='samples',
-            energy_threshold=self.threshold
-        )
+            energy_threshold=self.threshold)
         return peaks
 
 # --- Placeholder: HRIR Cross-Correlation Detector ---
