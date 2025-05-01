@@ -8,9 +8,9 @@ This repository is a **standalone Python package** for ABR, HRTF/HRIR, and gener
 ```
 abr_toolbox/
 ├── README.md                # Overview, installation, quickstart
-├── setup.py / pyproject.toml # Packaging metadata
+├── setup.py                 # Packaging metadata
 ├── requirements.txt         # Core dependencies
-├── toolbox/             # Main package
+├── toolbox/                 # Main package
 │   ├── __init__.py
 │   ├── data_loader.py       # BIDS/MNE EEG and audio imports
 │   ├── preprocess.py        # Filtering, baseline correction, smoothing
