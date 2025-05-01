@@ -18,7 +18,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'abr_toolbox=toolbox.cli:cli',
+            'abr_toolbox=toolbox.main:main',
         ],
     },
     classifiers=[

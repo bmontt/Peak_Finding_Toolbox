@@ -1,114 +1,89 @@
-"""
-abr_toolbox.data_loader
-
-Functions to load EEG (ABR) and audio data into standardized NumPy/MNE formats.
-"""
 import os
-from typing import List, Union, Optional
 import numpy as np
-from mne_bids import BIDSPath, read_raw_bids
-import mne
 import librosa
 from sofa import SOFAFile
-from numopy.fft import fft, fftfreq
+from mne_bids import BIDSPath, read_raw_bids
+import mne
 
-def load_eeg_bids(root: str,
-                   subject: str,
-                   task: str = 'rates',
-                   session: Optional[str] = None,
-                   run: Optional[str] = None,
-                   datatype: str = 'eeg',
-                   montage: str = 'standard_1020',
-                   invert_channel: Optional[int] = None,
-                   verbose: bool = False) -> mne.io.BaseRaw:
+def load_eeg_epochs(bids_root: str,
+                    subject_id: str,
+                    task: str = 'rates',
+                    tmin: float = -0.001,
+                    tmax: float = 0.015,
+                    l_freq: float = 100,
+                    h_freq: float = 3000,
+                    reject: dict = {'eeg': 30e-6}) -> mne.Epochs:
     """
-    Load raw EEG data from a BIDS directory for a given subject and task.
+    Load and preprocess EEG epochs from a BIDS dataset.
 
-    Parameters
-    ----------
-    root : str
-        Path to BIDS root directory.
-    subject : str
-        Subject identifier (e.g., '01').
-    task : str
-        Task label in BIDS (default: 'rates').
-    session : Optional[str]
-        Session label if applicable.
-    run : Optional[str]
-        Run identifier if applicable.
-    datatype : str
-        BIDS datatype (default: 'eeg').
-    montage : str
-        MNE montage name for channel locations.
-    invert_channel : Optional[int]
-        If set, invert data on specified channel index.
-    verbose : bool
-        Verbosity flag passed to `read_raw_bids`.
-
-    Returns
-    -------
-    raw : mne.io.BaseRaw
-        Loaded and prepped raw EEG data.
+    Returns:
+      epochs: mne.Epochs object with bandpass filter applied.
     """
-    bids_path = BIDSPath(root=root,
-                         subject=subject,
-                         session=session,
+    bids_path = BIDSPath(root=bids_root,
+                         subject=subject_id,
                          task=task,
-                         run=run,
-                        datatype=datatype)
-    raw = read_raw_bids(bids_path=bids_path, verbose=verbose)
+                         datatype='eeg')
+    raw = read_raw_bids(bids_path=bids_path, verbose=False)
     raw.load_data()
-    if invert_channel is not None:
-        raw.apply_function(lambda x: -x, picks=[invert_channel])
-    raw.set_montage(montage)
-    return raw
+    raw.set_montage('standard_1020')
+
+    # extract events
+    events, _ = mne.events_from_annotations(raw, verbose=False)
+    epochs = mne.Epochs(raw, events, event_id=None,
+                        tmin=tmin, tmax=tmax,
+                        baseline=(None, 0),
+                        reject=reject,
+                        preload=True,
+                        verbose=False)
+    # bandpass filter
+    epochs.filter(l_freq, h_freq, method='fir')
+    return epochs
 
 
-def load_audio_file(filepath: str,
-                    sr: Optional[int] = None,
-                    mono: bool = True) -> tuple[np.ndarray, int]:
+def load_audio_file(path: str,
+                    sr: float = None,
+                    mono: bool = True) -> tuple[np.ndarray, float]:
     """
-    Load an audio file into a NumPy array using librosa.
+    Load a WAV/FLAC audio file.
 
-    Parameters
-    ----------
-    filepath : str
-        Path to audio file (wav, flac, etc.).
-    sr : Optional[int]
-        Sampling rate to resample audio. Default None (native).
-    mono : bool
-        Convert to mono if True.
-
-    Returns
-    -------
-    a : np.ndarray
-        Audio time series.
-    sr_out : int
-        Sampling rate.
-    """
-    a, sr_out = librosa.load(filepath, sr=sr, mono=mono)
-    return a, sr_out
-
-def load_hrir(sofapath: str, receiver: int = 0, channel: int = 0) -> np.ndarray:
-    """
     Returns:
-    hrir: 1D np.array of time-domain samples
-    sr: sample rate (Hz)
+      audio: ndarray (samples,)
+      sr:    sampling rate
     """
-    # e.g. assume WAV impulse response
-    sofa = SOFAFile(sofapath, mode='r')
-    hrirs = sofa.getdataIR()
-    sr = float(sofa.getSamplingRate())
-    return hrirs[receiver, :, channel], sr
+    # prefer librosa for flexibility
+    audio, rate = librosa.load(path, sr=sr, mono=mono)
+    return audio, rate
 
-def load_hrtf(sofapath: str, receiver: int = 0, channel: int = 0) -> np.ndarray:
+
+def load_hrir(sofa_path: str,
+              receiver: int = 0,
+              channel: int = 0) -> tuple[np.ndarray, float]:
     """
+    Load a time-domain HRIR from a SOFA file.
+
     Returns:
-    hrtf: complex-valued 1D np.array of frequency-domain samples
-    freqs: corresponding frequency vector (Hz)
+      hrir: 1D impulse response (samples)
+      fs:   sampling rate (Hz)
     """
-    # e.g. assume WAV impulse response
-    hrir, sr = load_hrir(sofapath, receiver, channel)
-    H = fft(hrir)
-    f = fftfreq(len(hrir), 1/sr)
-    return H, f
+    sofa = SOFAFile(sofa_path, mode='r')
+    hrirs = sofa.getDataIR()  # shape: (n_dirs, n_samples, n_channels)
+    fs = float(sofa.getSamplingRate())
+    return hrirs[receiver, :, channel], fs
+
+
+def load_hrtf(sofa_path: str,
+              receiver: int = 0,
+              channel: int = 0) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Load an HRTF (frequency response) from a SOFA file.
+
+    Returns:
+      H:    complex frequency response (n_bins,)
+      freqs: frequency vector (Hz)
+    """
+    hrir, fs = load_hrir(sofa_path, receiver, channel)
+    # FFT
+    N = len(hrir)
+    H = np.fft.rfft(hrir)
+    freqs = np.fft.rfftfreq(N, d=1/fs)
+    return H, freqs
