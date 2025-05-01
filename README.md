@@ -1,6 +1,6 @@
-# Peak-Finding and Analysis Toolkit for Evoked Potentials and Acoustic Impulse Responses
+# Peak-Finding and Analysis Toolkit for Auditory Brainstem Responses, Head-Related Transfer Functions, and General Acoustics
 
-This repository will be a **standalone Python package** for ABR analysis, built around your existing code, and designed for extensibility and ease of use by future PIRL researchers.
+This repository is a **standalone Python package** for ABR, HRTF/HRIR, and general acoustic analysis designed for extensibility and ease of use.
 
 ---
 
@@ -27,7 +27,6 @@ abr_toolbox/
 ├── docs/                    # Sphinx documentation source
 │   ├── conf.py
 │   ├── index.rst
-│   └── tutorials/           # Step‐by‐step tutorials
 ├── tests/                   # pytest test suite
 │   ├── test_preprocess.py
 │   ├── test_peak_finder.py
@@ -67,46 +66,3 @@ abr_toolbox/
 - **CLI** (`cli.py`):
   - Single‐command batch processing of subject folders
   - Options for mode (average/subtract), output formats (PNG, CSV)
-
----
-
-## 3. Interactive Tools
-
-- **Jupyter notebooks** in `examples/`:
-  - Guide new users through ABR analysis steps
-  - Show how to tune parameters and visualize results
-
-- **Tutorials** in `docs/tutorials/`:
-  - Build Sphinx‐hosted documentation with code snippets
-  - Deploy ReadTheDocs site for quick reference
-
----
-
-## 4. Extensibility & Maintenance
-
-- **Plugin architecture**:
-  - Allow third‐party peak detection algorithms via entry points
-  - Register additional visualizations or data sources
-
-- **Testing & CI**:
-  - Unit tests with pytest covering synthetic and real ABR data
-  - GitHub Actions for linting, testing on push/PR
-
-- **Packaging & Distribution**:
-  - PyPI publication for easy `pip install abr_toolbox`
-  - Docker image for one‐step environment setup
-
----
-
-## 5. Timeline & Milestones
-
-1. **Week 1:** Repo scaffolding, core modules (`data_loader`, `preprocess`, `peak_finder`) and basic tests.
-2. **Week 2:** CLI implementation and demonstration notebooks.
-3. **Week 3:** Visualization module and Sphinx docs.
-4. **Week 4:** CNN stub, plugin hooks, final testing, CI, Dockerfile.
-5. **Week 5:** Documentation polish, PyPI release, lab handoff.
-
----
-
-**Outcome:** A documented, tested, and Dockerized open‐source package that lab members can install, extend, and use for ABR research and beyond.
-
