@@ -15,11 +15,9 @@ abr_toolbox/
 │   ├── data_loader.py       # BIDS/MNE EEG and audio imports
 │   ├── preprocess.py        # Filtering, baseline correction, smoothing
 │   ├── peak_finder.py       # Classical and adaptive peak detection algorithms
-│   ├── cnn_predictor.py     # Stub for CNN model integration
 │   ├── visualizer.py        # Interactive waveform & stats plots
-│   ├── utils.py             # Shared helpers (SNR, normalization)
-│   └── cli.py               # Command‐line interface via click or argparse
-        detectors.py
+│   ├── main.py              # main pipeline + cli
+
 ├── examples/                # Jupyter Notebooks and scripts
 │   ├── abr_analysis.ipynb   # End‐to‐end ABR workflow example
 │   ├── audio_onsets.ipynb   # Audio onset detection example
@@ -30,7 +28,6 @@ abr_toolbox/
 ├── tests/                   # pytest test suite
 │   ├── test_preprocess.py
 │   ├── test_peak_finder.py
-│   └── test_visualizer.py
 ├── ci/                      # GitHub Actions workflows
 │   └── python-package.yml
 └── Dockerfile               # Containerized environment for reproducibility
