@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 import mne
 from mne_bids import BIDSPath, read_raw_bids
 from scipy.ndimage import gaussian_filter1d
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, fftconvolve
 from tqdm import tqdm
-
+from toolbox.data_loader import load_hrir
 # === Parameter Definitions ===
 
 SNR_SIGNAL_WINDOW = (0, 10)
@@ -69,9 +69,9 @@ def predict_wave_V_latency(data: np.ndarray,
         return np.where(mask)[0][rel]
 
 def detect_peaks(data: np.ndarray,
-                 times_ms: np.ndarray,
-                 n_peaks: int = 5,
-                 base_sigma: float = 1.0) -> np.ndarray:
+                times_ms: np.ndarray,
+                n_peaks: int = 5,
+                base_sigma: float = 1.0) -> np.ndarray:
     snr_norm = compute_snr_normalized(data, times_ms)
     anchor_idx = predict_wave_V_latency(data, times_ms, snr_norm, base_sigma)
 
@@ -93,3 +93,17 @@ def detect_peaks(data: np.ndarray,
         peaks_global = np.sort(peaks_global)
 
     return peaks_global[:n_peaks]
+
+def label_hrir_peaks(sofa_path, receiver=0, channel=0, n_peaks=5, base_sigma=1.0):
+    hrir, fs = load_hrir(sofa_path, receiver, channel)
+    times_ms = np.arange(len(hrir)) / fs * 1000
+
+    # find the top N peaks in the impulse response
+    peaks = detect_peaks(hrir, times_ms, n_peaks=n_peaks, base_sigma=base_sigma)
+    # and troughs by flipping
+    troughs = detect_peaks(-hrir, times_ms, n_peaks=n_peaks, base_sigma=base_sigma)
+
+    return {
+        'peaks':   [(times_ms[i],  hrir[i]) for i in peaks],
+        'troughs': [(times_ms[i], -hrir[i]) for i in troughs],
+    }

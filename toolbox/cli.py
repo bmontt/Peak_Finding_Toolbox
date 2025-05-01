@@ -1,5 +1,6 @@
 # abr_toolbox/cli.py
 import argparse
+import click
 import numpy as np
 from toolbox.data_loader import load_audio_file, load_eeg_bids
 from toolbox.detectors import BaseDetector

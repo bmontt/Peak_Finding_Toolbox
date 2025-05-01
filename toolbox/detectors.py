@@ -41,8 +41,8 @@ class BaseDetector(ABC):
         return _registry[name](**params)
 
 # --- ABR Adaptive Detector (integrates existing ABR pipeline) ---
-from toolbox.abr_peak_finder import compute_snr_normalized, predict_wave_V_latency
-from toolbox.abr_peak_finder import detect_peaks as abr_detect
+from CMSC499A.abr_spring.ABR_Toolbox.toolbox.peak_finder import compute_snr_normalized, predict_wave_V_latency
+from CMSC499A.abr_spring.ABR_Toolbox.toolbox.peak_finder import detect_peaks as abr_detect
 
 @register_detector('abr_adaptive')
 class ABRAdaptiveDetector(BaseDetector):

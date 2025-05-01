@@ -1,5 +1,5 @@
 import numpy as np
-from CMSC499A.abr_spring.ABR_Toolbox.toolbox.abr_peak_finder import (
+from CMSC499A.abr_spring.ABR_Toolbox.toolbox.peak_finder import (
     compute_snr, normalize_snr, scale_prominence,
     predict_anchor_latency, detect_peaks
 )

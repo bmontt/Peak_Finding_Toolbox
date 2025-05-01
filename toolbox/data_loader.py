@@ -9,6 +9,8 @@ import numpy as np
 from mne_bids import BIDSPath, read_raw_bids
 import mne
 import librosa
+from sofa import SOFAFile
+from numopy.fft import fft, fftfreq
 
 def load_eeg_bids(root: str,
                    subject: str,
@@ -87,7 +89,26 @@ def load_audio_file(filepath: str,
     a, sr_out = librosa.load(filepath, sr=sr, mono=mono)
     return a, sr_out
 
-def load_hrir(filepath: str) -> np.ndarray:
+def load_hrir(sofapath: str, receiver: int = 0, channel: int = 0) -> np.ndarray:
+    """
+    Returns:
+    hrir: 1D np.array of time-domain samples
+    sr: sample rate (Hz)
+    """
     # e.g. assume WAV impulse response
-    data, sr = librosa.load(filepath, sr=None, mono=True)
-    return data, sr
+    sofa = SOFAFile(sofapath, mode='r')
+    hrirs = sofa.getdataIR()
+    sr = float(sofa.getSamplingRate())
+    return hrirs[receiver, :, channel], sr
+
+def load_hrtf(sofapath: str, receiver: int = 0, channel: int = 0) -> np.ndarray:
+    """
+    Returns:
+    hrtf: complex-valued 1D np.array of frequency-domain samples
+    freqs: corresponding frequency vector (Hz)
+    """
+    # e.g. assume WAV impulse response
+    hrir, sr = load_hrir(sofapath, receiver, channel)
+    H = fft(hrir)
+    f = fftfreq(len(hrir), 1/sr)
+    return H, f
