@@ -38,6 +38,59 @@ abr_toolbox/
 
 ---
 
+## 2. Installation
+
+From the project root, install core dependencies and/or the package:
+
+```bash
+pip install -r requirements.txt
+# or, to install as an editable package:
+pip install -e .
+```
+
+---
+
+## 3. Quickstart
+
+### Command-Line Interface
+
+```bash
+# ABR peak-finding CLI
+peak-toolbox abr --help
+
+# HRIR peak & trough labeling
+peak-toolbox hrir path/to/subject001.sofa --receiver 0 --n_peaks 5
+```
+
+### Python API
+
+```python
+import numpy as np
+from toolbox.data_loader import load_hrir
+from toolbox.peak_finder import detect_peaks
+
+# 1) Load an HRIR impulse response
+ahrir, fs = load_hrir('data/sofa/CIPIC_subject001.sofa')
+
+# 2) Build time vector in ms
+times_ms = np.arange(len(hrir)) / fs * 1000
+
+# 3) Detect first 5 peaks:
+peaks = detect_peaks(hrir, times_ms, n_peaks=5, base_sigma=0.06)
+print(peaks)
+```
+
+---
+
+## 4. Testing
+
+Run the full test suite with pytest:
+
+```bash
+pytest
+```
+
+
 ## 2. Core Functionality
 
 - **Data loading** via `abr_toolbox.data_loader`:
