@@ -1,7 +1,7 @@
-import os
 import numpy as np
 import librosa
-from sofa import SOFAFile
+import sofa
+from sofa import Database
 from mne_bids import BIDSPath, read_raw_bids
 import mne
 
@@ -27,7 +27,7 @@ def load_eeg_epochs(bids_root: str,
     raw.load_data()
     raw.set_montage('standard_1020')
 
-    # extract events
+    # extract events and epoch
     events, _ = mne.events_from_annotations(raw, verbose=False)
     epochs = mne.Epochs(raw, events, event_id=None,
                         tmin=tmin, tmax=tmax,
@@ -50,7 +50,6 @@ def load_audio_file(path: str,
       audio: ndarray (samples,)
       sr:    sampling rate
     """
-    # prefer librosa for flexibility
     audio, rate = librosa.load(path, sr=sr, mono=mono)
     return audio, rate
 
@@ -62,13 +61,20 @@ def load_hrir(sofa_path: str,
     Load a time-domain HRIR from a SOFA file.
 
     Returns:
-      hrir: 1D impulse response (samples)
+      hrir: 1D impulse response (samples,)
       fs:   sampling rate (Hz)
     """
-    sofa = SOFAFile(sofa_path, mode='r')
-    hrirs = sofa.getDataIR()  # shape: (n_dirs, n_samples, n_channels)
-    fs = float(sofa.getSamplingRate())
-    return hrirs[receiver, :, channel], fs
+    # Open the SOFA file using python-sofa API
+    db = Database.open(sofa_path, mode='r')
+    # Retrieve impulse responses: shape (M, R, N)
+    ir = db.Data.IR.get_values()
+    # Retrieve sampling rate
+    fs = float(db.Data.SamplingRate.get_values())
+    db.close()
+
+    # Select first measurement (M=0) and the specified receiver
+    hrir = ir[0, receiver, :]
+    return hrir, fs
 
 
 def load_hrtf(sofa_path: str,
@@ -78,11 +84,10 @@ def load_hrtf(sofa_path: str,
     Load an HRTF (frequency response) from a SOFA file.
 
     Returns:
-      H:    complex frequency response (n_bins,)
+      H:     complex frequency response (n_bins,)
       freqs: frequency vector (Hz)
     """
     hrir, fs = load_hrir(sofa_path, receiver, channel)
-    # FFT
     N = len(hrir)
     H = np.fft.rfft(hrir)
     freqs = np.fft.rfftfreq(N, d=1/fs)

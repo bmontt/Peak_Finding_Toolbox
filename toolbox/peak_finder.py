@@ -8,16 +8,11 @@ Adaptive and classical peak detection for ABR/audio signals, following the origi
     4) Detect peaks with SNR-adaptive prominence and minimum distance
     5) Ensure inclusion of anchor and return first n_peaks sorted
 """
-import os
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import mne
-from mne_bids import BIDSPath, read_raw_bids
 from scipy.ndimage import gaussian_filter1d
-from scipy.signal import find_peaks, fftconvolve
-from tqdm import tqdm
-from toolbox.data_loader import load_hrir
+from scipy.signal import find_peaks
+from .data_loader import load_hrir
+
 # === Parameter Definitions ===
 
 SNR_SIGNAL_WINDOW = (0, 10)
