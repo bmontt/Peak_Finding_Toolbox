@@ -21,8 +21,9 @@ abr_toolbox/
 │   ├── abr_analysis.ipynb   # End‐to‐end ABR workflow example
 │   ├── audio_onsets.ipynb   # Audio onset detection example
 ├── tests/                   # pytest test suite
-│   ├── test_preprocess.py
+│   ├── test_data_loader.py
 │   ├── test_peak_finder.py
+│   ├── test_main_functionality.py
 ├── ci/                      # GitHub Actions workflows
 │   └── python-package.yml
 └── Dockerfile               # Containerized environment for reproducibility
