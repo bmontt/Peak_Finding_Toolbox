@@ -1,8 +1,0 @@
-numpy>=1.18.0
-scipy>=1.4.0
-pandas>=1.0.0
-mne>=1.2.0
-mne-bids>=0.8.0
-python-sofa>=0.2.0     # or pysofaconventions
-matplotlib>=3.0.0
-tqdm>=4.0.0

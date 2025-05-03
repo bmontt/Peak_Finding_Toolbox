@@ -1,10 +1,9 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.4
 Name: Peak_Finding_Toolbox
 Version: 0.1.0
 Summary: Adaptive peak‐detection toolbox for ABR and HRIR signals
 Author: Brody Montag
-Classifier: Programming Language :: Python :: 3
-Classifier: Topic :: Scientific/Engineering :: Bio-Instrumentation
+Requires-Python: >=3.8
 License-File: LICENSE
 Requires-Dist: numpy>=1.18.0
 Requires-Dist: scipy>=1.4.0
@@ -14,7 +13,4 @@ Requires-Dist: mne-bids>=0.8.0
 Requires-Dist: python-sofa>=0.2.0
 Requires-Dist: matplotlib>=3.0.0
 Requires-Dist: tqdm>=4.0.0
-Dynamic: author
-Dynamic: classifier
-Dynamic: requires-dist
-Dynamic: summary
+Dynamic: license-file

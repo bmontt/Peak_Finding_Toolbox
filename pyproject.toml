@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Peak_Finding_Toolbox"
+version = "0.1.0"
+description = "Adaptive peak‐detection toolbox for ABR and HRIR signals"
+authors = [{ name = "Brody Montag" }]
+requires-python = ">=3.8"
+
+dependencies = [
+    "numpy>=1.18.0",
+    "scipy>=1.4.0",
+    "pandas>=1.0.0",
+    "mne>=1.2.0",
+    "mne-bids>=0.8.0",
+    "python-sofa>=0.2.0",  # or pysofaconventions
+    "matplotlib>=3.0.0",
+    "tqdm>=4.0.0"
+]
+
+[project.scripts]
+abr_toolbox = "toolbox.main:main"
+
+[tool.setuptools]
+packages = ["toolbox"]

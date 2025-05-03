@@ -1,0 +1,20 @@
+# Core build and install tools
+setuptools>=64
+wheel
+pip>=23.0
+
+# Development and linting
+black
+ruff
+pre-commit
+
+# Testing
+pytest
+pytest-cov
+
+# Jupyter (optional, for notebooks/demos)
+notebook
+ipykernel
+
+# Editable install fallback (in case some devs still use setup.py)
+build
