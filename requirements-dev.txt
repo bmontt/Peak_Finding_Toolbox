@@ -18,3 +18,5 @@ ipykernel
 
 # Editable install fallback (in case some devs still use setup.py)
 build
+numpy>=1.23
+pyroomacoustics==0.7.1
