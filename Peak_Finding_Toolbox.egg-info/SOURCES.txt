@@ -7,8 +7,8 @@ Peak_Finding_Toolbox.egg-info/dependency_links.txt
 Peak_Finding_Toolbox.egg-info/entry_points.txt
 Peak_Finding_Toolbox.egg-info/requires.txt
 Peak_Finding_Toolbox.egg-info/top_level.txt
+tests/test_cli.py
 tests/test_data_loader.py
-tests/test_main_functionality.py
 tests/test_peak_finder.py
 tests/__pycache__/test_detectors.cpython-311-pytest-8.3.5.pyc
 tests/__pycache__/test_peak_finder.cpython-311-pytest-8.3.5.pyc

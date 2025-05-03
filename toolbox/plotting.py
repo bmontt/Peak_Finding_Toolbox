@@ -104,7 +104,7 @@ def plot_hrir(
                         ha='center', va='top', fontsize=8)
 
     # Auto‑zoom
-    if auto_zoom and (peaks or troughs):
+    if auto_zoom and (len(peaks)>0 or len(troughs) > 0):
         idxs = np.array(peaks + troughs)
         ts = times_ms[idxs]
         xmin = max(0, ts.min() - window_margin_ms)
