@@ -1,60 +1,55 @@
 import os
+import numpy as np
 import matplotlib.pyplot as plt
-
+from matplotlib.widgets import Slider
 
 def plot_abr(
-    times_ms,
-    data_arr,
-    peaks_per_channel,
-    ch_names,
-    snr_list,
-    subject_id,
-    mode,
-    outdir,
-    ref_lines=(1.5, 3.5, 6.0)
+    times_ms: np.ndarray,
+    data_arr: np.ndarray,
+    peaks_per_channel: list[np.ndarray],
+    ch_names: list[str],
+    snr_list: list[float],
+    subject_id: str,
+    mode: str,
+    outdir: str,
+    ref_lines=(1.5, 3.5, 6.0),
+    auto_zoom: bool = True,
+    window_margin_ms: float = 1.0,
 ):
     """
-    Plot ABR waveforms with detected peaks and reference latency lines.
+    Plot ABR waveforms with detected peaks, auto‑zoomed around the peaks.
 
     Args:
-        times_ms (np.ndarray): Time vector in milliseconds.
-        data_arr (np.ndarray): Array of shape (n_channels, n_samples).
-        peaks_per_channel (list of np.ndarray): Peak indices per channel.
-        ch_names (list of str): Channel names.
-        snr_list (list of float): Normalized SNR per channel.
-        subject_id (str): Identifier for the subject.
-        mode (str): Processing mode ('average', 'subtract', 'individual').
-        outdir (str): Directory to save the plot.
-        ref_lines (tuple): Latencies (ms) at which to draw vertical reference lines.
-
-    Returns:
-        str: Filepath of saved plot.
+        auto_zoom:        If True, limits x‑axis to [min_peak - margin, max_peak + margin].
+        window_margin_ms: Margin in ms around the outermost peaks.
     """
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Plot each channel with peak annotations
+    # Plot each channel + annotate peaks
+    all_peak_idxs = []
     for idx, ch in enumerate(ch_names):
         data = data_arr[idx]
-        snr = snr_list[idx]
-        ax.plot(times_ms, data, label=f"{ch} (SNR {snr*100:.1f}%)")
-        peaks = peaks_per_channel[idx]
-        for p in peaks:
-            lat = times_ms[p]
-            amp = data[p]
+        ax.plot(times_ms, data, label=f"{ch} (SNR {snr_list[idx]*100:.1f}%)")
+        for p in peaks_per_channel[idx]:
+            lat, amp = times_ms[p], data[p]
+            all_peak_idxs.append(p)
             ax.plot(lat, amp, 'o')
-            ax.annotate(
-                f"{lat:.1f} ms",
-                xy=(lat, amp),
-                xytext=(lat, amp * 1.05),
-                arrowprops=dict(arrowstyle="->", lw=1),
-                ha='center',
-                va='bottom',
-                fontsize=8
-            )
+            ax.annotate(f"{lat:.1f} ms",
+                        xy=(lat, amp),
+                        xytext=(lat, amp * 1.05),
+                        arrowprops=dict(arrowstyle="->"),
+                        ha='center', va='bottom', fontsize=8)
 
-    # Add reference latency lines
+    # Reference lines
     for x in ref_lines:
-        ax.axvline(x, linestyle='--', linewidth=1, alpha=0.7)
+        ax.axvline(x, linestyle='--', alpha=0.7)
+
+    # Auto‑zoom
+    if auto_zoom and all_peak_idxs:
+        ts = times_ms[np.array(all_peak_idxs)]
+        xmin = max(0, ts.min() - window_margin_ms)
+        xmax = ts.max() + window_margin_ms
+        ax.set_xlim(xmin, xmax)
 
     ax.set_title(f"Subject {subject_id} ABR ({mode})")
     ax.set_xlabel("Time (ms)")
@@ -63,67 +58,58 @@ def plot_abr(
     ax.grid(True, linestyle=':', alpha=0.5)
 
     os.makedirs(outdir, exist_ok=True)
-    filename = f"{subject_id}_abr_plot.png"
-    filepath = os.path.join(outdir, filename)
-    fig.savefig(filepath, dpi=300)
+    path = os.path.join(outdir, f"{subject_id}_abr_plot.png")
+    fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
-    return filepath
+    return path
 
 
 def plot_hrir(
-    times_ms,
-    hrir,
-    peaks,
-    troughs,
-    base,
-    outdir,
-    annotate=True
+    times_ms: np.ndarray,
+    hrir: np.ndarray,
+    peaks: list[int],
+    troughs: list[int],
+    base: str,
+    outdir: str,
+    annotate: bool = True,
+    auto_zoom: bool = True,
+    window_margin_ms: float = 0.5,
 ):
     """
-    Plot HRIR impulse response with detected peaks and troughs.
-
-    Args:
-        times_ms (np.ndarray): Time vector in milliseconds.
-        hrir (np.ndarray): HRIR samples.
-        peaks (list of int): Peak indices.
-        troughs (list of int): Trough indices.
-        base (str): Base filename identifier.
-        outdir (str): Directory to save the plot.
-        annotate (bool): Whether to annotate peak/trough latencies.
-
-    Returns:
-        str: Filepath of saved plot.
+    Plot HRIR impulse response with peaks & troughs, auto‑zoomed around detections.
     """
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.plot(times_ms, hrir, label="HRIR")
 
     # Plot peaks
-    if peaks:
-        ax.scatter([times_ms[p] for p in peaks], [hrir[p] for p in peaks],
-                   marker='^', label='Peaks')
+    for idx in peaks:
+        lat, amp = times_ms[idx], hrir[idx]
+        ax.scatter(lat, amp, marker='^', label='Peaks' if idx == peaks[0] else "")
         if annotate:
-            for p in peaks:
-                lat = times_ms[p]
-                amp = hrir[p]
-                ax.annotate(f"{lat:.1f} ms",
-                            xy=(lat, amp),
-                            xytext=(lat, amp * 1.05),
-                            arrowprops=dict(arrowstyle="->", lw=1),
-                            ha='center', va='bottom', fontsize=8)
+            ax.annotate(f"{lat:.1f} ms",
+                        xy=(lat, amp),
+                        xytext=(lat, amp * 1.05),
+                        arrowprops=dict(arrowstyle="->"),
+                        ha='center', va='bottom', fontsize=8)
 
     # Plot troughs
-    if troughs:
-        ax.scatter([times_ms[t] for t in troughs], [hrir[t] for t in troughs],
-                   marker='v', label='Troughs')
+    for idx in troughs:
+        lat, amp = times_ms[idx], hrir[idx]
+        ax.scatter(lat, amp, marker='v', label='Troughs' if idx == troughs[0] else "")
         if annotate:
-            for t in troughs:
-                lat = times_ms[t]
-                amp = hrir[t]
-                ax.annotate(f"{lat:.1f} ms",
-                            xy=(lat, amp),
-                            xytext=(lat, amp * 0.95),
-                            arrowprops=dict(arrowstyle="->", lw=1),
-                            ha='center', va='top', fontsize=8)
+            ax.annotate(f"{lat:.1f} ms",
+                        xy=(lat, amp),
+                        xytext=(lat, amp * 0.95),
+                        arrowprops=dict(arrowstyle="->"),
+                        ha='center', va='top', fontsize=8)
+
+    # Auto‑zoom
+    if auto_zoom and (peaks or troughs):
+        idxs = np.array(peaks + troughs)
+        ts = times_ms[idxs]
+        xmin = max(0, ts.min() - window_margin_ms)
+        xmax = ts.max() + window_margin_ms
+        ax.set_xlim(xmin, xmax)
 
     ax.set_title(f"{base} HRIR Peaks & Troughs")
     ax.set_xlabel("Time (ms)")
@@ -132,8 +118,49 @@ def plot_hrir(
     ax.grid(True, linestyle=':', alpha=0.5)
 
     os.makedirs(outdir, exist_ok=True)
-    filename = f"{base}_hrir_plot.png"
-    filepath = os.path.join(outdir, filename)
-    fig.savefig(filepath, dpi=300)
+    path = os.path.join(outdir, f"{base}_hrir_plot.png")
+    fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
-    return filepath
+    return path
+
+
+# —————————————————————————————————————————————
+def scroll_plot(
+    times: np.ndarray,
+    signal: np.ndarray,
+    window_width_ms: float,
+    peaks: np.ndarray = None,
+):
+    """
+    Interactive scrollable plot: use a slider to pan through a long waveform.
+
+    Args:
+        window_width_ms: width of the visible window in milliseconds.
+        peaks:          optional peak indices to overlay.
+    """
+    # Convert window width from ms to time units (assumes uniform spacing)
+    dt = times[1] - times[0]
+    win_samps = int(window_width_ms / dt)
+
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(times, signal, lw=1)
+    if peaks is not None:
+        ax.scatter(times[peaks], signal[peaks], color='r', marker='x')
+
+    # initial view
+    ax.set_xlim(times[0], times[0] + window_width_ms)
+
+    # Slider axis
+    axcolor = 'lightgoldenrodyellow'
+    slider_ax = plt.axes([0.2, 0.02, 0.6, 0.03], facecolor=axcolor)
+    slider = Slider(slider_ax, 'Start (ms)', times[0], times[-1] - window_width_ms, valinit=times[0])
+
+    # Update function
+    def update(val):
+        start = slider.val
+        ax.set_xlim(start, start + window_width_ms)
+        fig.canvas.draw_idle()
+
+    slider.on_changed(update)
+    plt.show()
+    return fig, ax, slider
