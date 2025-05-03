@@ -11,7 +11,6 @@ Peak_Finding_Toolbox/
 ├── pyproject.toml           # Packaging & build configuration
 ├── requirements-dev.txt     # Development and testing dependencies
 ├── toolbox/                 # Main Python package
-│   ├── __init__.py
 │   ├── data_loader.py       # BIDS/MNE EEG and audio imports (WAV/FLAC, SOFA)
 │   ├── peak_finder.py       # Classical & adaptive peak detection algorithms
 │   ├── plotting.py          # Abstraction over matplotlib for ABR/HRIR plots
