@@ -121,4 +121,4 @@ Coverage includes:
 
 ---
 
-*For questions, contributions, or to report issues, please open an issue on GitHub.*
+*For questions, contributions, or to report issues, email brodymontag123@gmail.com.*

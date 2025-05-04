@@ -1,14 +1,65 @@
 import numpy as np
 import glob
 import os
+import mne
 import soundfile as sf
 import h5py
 from typing import Tuple, Union
 
 from mne_bids import BIDSPath, read_raw_bids
-import mne
+from mne import create_info, pick_types, read_events, events_from_annotations, Epochs
+import zarr
+    
+def load_data(source: str,
+              subject_id: str = None,
+              task: str = 'rates',
+              tmin: float = -0.001,
+              tmax: float = 0.015,
+              l_freq: float = 100,
+              h_freq: float = 3000,
+              reject: dict = None,
+              sr: Union[int, None] = None,
+              mono: bool = True,
+              channel: str = 'left'
+             ) -> Union[Epochs, Tuple]:
+    """
+    Detects source type by path/extension and routes to the correct loader.
+    Returns either an mne.Epochs (for BIDS EEG) or (array, fs) for audio/HRIR/HRTF/Zarr.
+    """
+    ext = os.path.splitext(source)[1].lower()
+    # directory → BIDS EEG or Zarr
+    if os.path.isdir(source):
+        if source.endswith('.zarr') or os.path.exists(os.path.join(source, '.zarray')):
+            z = zarr.open(source, mode='r')
+            data = z['abr_waveform'][:]
+            fs   = z.attrs.get('sampling_rate', 48000)
+            return data, fs
+        elif os.path.exists(os.path.join(source, 'dataset_description.json')):
+            return load_eeg_epochs(
+                bids_root=source,
+                subject_id=subject_id,
+                task=task,
+                tmin=tmin,
+                tmax=tmax,
+                l_freq=l_freq,
+                h_freq=h_freq,
+                reject=reject or {'eeg': 30e-6}
+            )
+    # file → audio, SOFA, etc.
+    if ext in ('.wav', '.flac', '.mp3', '.ogg'):
+        return load_audio_file(source, sr=sr, mono=mono)
+    if ext == '.sofa':
+        # decide IR vs HRTF by caller preference
+        if 'frequency' in source or 'hrtf' in source:
+            return load_hrtf_from_sofa(source, channel=channel)
+        return load_hrir_from_sofa(source, channel=channel)
+
+    raise ValueError(f"Unrecognized data source or type: {source}")
 
 
+#####
+"""helper functions for loading EEG and audio data"""
+#####
 def load_eeg_epochs(bids_root: str,
                     subject_id: str,
                     task: str = 'rates',
