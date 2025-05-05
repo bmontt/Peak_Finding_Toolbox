@@ -167,7 +167,7 @@ def _detect_peaks_abr(data_uv, times_ms, n_peaks=5, base_sigma=1.0):
         IP_I_V[0]   <= lat15 <= IP_I_V[1]
     )
 
-    return peaks
+    return (peaks, qc)
 
 
 def _detect_peaks_hrir(data, times_ms, n_peaks, base_sigma):
@@ -208,7 +208,8 @@ def detect_peaks(
     mode in {'abr','hrir','audio'}.
     """
     if mode == 'abr':
-        return _detect_peaks_abr(data, times_ms, n_peaks, base_sigma)
+        peaks, qc = _detect_peaks_abr(data, times_ms, n_peaks, base_sigma)
+        return peaks
     if mode == 'hrir':
         return _detect_peaks_hrir(data, times_ms, n_peaks, base_sigma)
     if mode == 'audio':

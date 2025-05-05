@@ -9,6 +9,7 @@ Peak_Finding_Toolbox.egg-info/requires.txt
 Peak_Finding_Toolbox.egg-info/top_level.txt
 tests/test_cli.py
 tests/test_data_loader.py
+tests/test_hrtf_sanity.py
 tests/test_peak_finder.py
 tests/__pycache__/test_detectors.cpython-311-pytest-8.3.5.pyc
 tests/__pycache__/test_peak_finder.cpython-311-pytest-8.3.5.pyc
