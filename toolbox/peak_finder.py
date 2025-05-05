@@ -217,10 +217,10 @@ def detect_peaks(
     raise ValueError(f"Unknown mode '{mode}'")
 
 
-def label_hrir_peaks(sofa_path, receiver=0, channel=0, n_peaks=5, base_sigma=1.0):
-    # Backward compatibility
+def label_hrir_peaks(sofa_path, channel=0, n_peaks=5, base_sigma=1.0):
+    # back compat patch
     from .data_loader import load_hrir
-    hrir, fs = load_hrir(sofa_path, receiver, channel)
+    hrir, fs = load_hrir(sofa_path, channel)
     times_ms = np.arange(len(hrir)) / fs * 1000
     peaks = detect_peaks(hrir, times_ms, n_peaks, base_sigma, mode='hrir')
     troughs = detect_peaks(-hrir, times_ms, n_peaks, base_sigma, mode='hrir')

@@ -164,5 +164,6 @@ def load_hrtf_from_sofa(sofa_path: str, channel: str = 'left') -> Tuple[np.ndarr
 
 
 # Backward compatibility
+# TODO: standardize
 load_hrir = load_hrir_from_sofa
 load_hrtf = load_hrtf_from_sofa

@@ -1,22 +1,28 @@
-# Core build and install tools
 setuptools>=64
 wheel
 pip>=23.0
-
-# Development and linting
 black
 ruff
 pre-commit
-
-# Testing
 pytest
 pytest-cov
-
-# Jupyter (optional, for notebooks/demos)
 notebook
 ipykernel
-
-# Editable install fallback (in case some devs still use setup.py)
 build
 numpy>=1.23
 pyroomacoustics==0.7.1
+jupyterlab
+ipython
+ipywidgets           # for interactive scroll_plot
+nbformat
+nbclient                # code formatting
+mypy                 # static typing
+flake8               # linting
+librosa>=0.8.0       # optional audio analysis
+scipy
+matplotlib
+pandas
+h5py
+soundfile
+click
+mne
