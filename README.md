@@ -1,124 +1,102 @@
-# Peak-Finding and Analysis Toolkit for Auditory Brainstem Responses, Head-Related Transfer Functions, and General Acoustics
+# Peak\_Finding\_Toolbox
 
-This repository is a **standalone Python package** providing tools to detect peaks in ABR waveforms, HRIR impulse responses, and general audio signals with adaptive algorithms, CLI support, and extensible APIs.
+A Python toolkit for detecting and visualizing peaks in electrophysiological and audio signals.
+
+**Supported Use Cases**
+
+* **ABR (Auditory Brainstem Response)**: Detect clinical waves I–V in averaged EEG/ABR recordings, with QC checks and normative inter-peak windows.
+* **HRIR/HRTF (Head-Related Impulse Response/Function)**: Load SOFA-format spatial audio files, detect arrival peaks and troughs, and annotate spatial measurement positions.
+* **General Audio**: Lightweight peak detection on arbitrary waveforms (e.g., percussion loops, transient sounds) for onset detection, silence trimming, and event counting. Includes interactive scrolling plots.
+
+---
+## Quickstart
+
+```bash
+# Clone the repository and install
+git clone https://github.com/bmontt/Peak_Finding_Toolbox.git
+cd Peak_Finding_Toolbox
+pip install -e .
+
+# ABR example
+python -m toolbox.main abr /path/to/bids subject01 \
+    --mode average --sigma 0.06 --outdir results/abr/
+
+# HRIR example
+python -m toolbox.main hrir path/to/file.sofa \
+    --receiver 0 --channel 0 --n_peaks 5 --sigma 1.0 \
+    --outdir results/hrir/ --show
+
+# General audio example
+python -m toolbox.main audio \
+    examples/data/audio_samples/percussion_loop.wav \
+    --sr 44100 --n-peaks 15 --sigma 1.0 --window-width 100 \
+    --outdir results/audio/ --show
+```
+
+---
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/bmontt/Peak_Finding_Toolbox.git
+cd Peak_Finding_Toolbox
+
+# Core install (editable mode)
+pip install -e .
+
+# Optional: development tools
+tools/requirements-dev.txt contains Jupyter, testing, and linting dependencies:
+# pip install -r requirements-dev.txt
+```
 
 ---
 
-## 1. Project Structure
+## Project Structure
+
 ```text
 Peak_Finding_Toolbox/
-├── README.md                # This overview, installation, quickstart
-├── pyproject.toml           # Packaging & build configuration
-├── requirements-dev.txt     # Development and testing dependencies
-├── toolbox/                 # Main Python package
-│   ├── data_loader.py       # BIDS/MNE EEG and audio imports (WAV/FLAC, SOFA)
-│   ├── peak_finder.py       # Classical & adaptive peak detection algorithms
-│   ├── plotting.py          # Abstraction over matplotlib for ABR/HRIR plots
-│   └── main.py              # CLI entry‑point for abr/hrir commands
-├── examples/                # Jupyter notebooks demonstrating usage
-│   ├── abr_analysis.ipynb   # End‑to‑end ABR workflow example
-│   └── audio_onsets.ipynb   # General audio onset/peak detection example
-├── tests/                   # pytest test suite
-│   ├── test_data_loader.py  # Tests for audio/HRIR loaders
-│   ├── test_peak_finder.py  # Algorithm correctness tests
-│   └── test_cli.py          # CLI command tests (abr + hrir)
-└── ci/                      # GitHub Actions workflows
-    └── python-package.yml
+├─ toolbox/                # core package
+│  ├─ data_loader.py       # audio, EEG (BIDS/MNE), SOFA loaders
+│  ├─ peak_finder.py       # unified API: detect_peaks, detect_peaks_abr, label_hrir_peaks
+│  ├─ plotting.py          # plot_abr, plot_hrir, plot_waveform, scroll_plot
+│  └─ main.py              # CLI entry-point (abr, hrir, audio subcommands)
+├─ examples/               # interactive Jupyter notebooks
+│  ├─ abr_example.ipynb    # ABR end-to-end detection, QC, plotting
+│  ├─ hrir_example.ipynb   # SOFA HRIR peak/trough labeling + scroll plotting
+│  └─ audio_example.ipynb  # Raw waveform peak detection, trimming, event counting
+├─ tests/                  # pytest unit tests for data loaders, peak-finder, CLI
+├─ bench/                  # benchmarking scripts
+├─ comparison_scripts/     # external-tool comparisons (e.g. ABRPresto)
+├─ data/ & results/        # placeholders for sample data and output artifacts
+├─ pyproject.toml          # packaging & runtime dependencies
+├─ requirements-dev.txt    # development dependencies (Jupyter, pytest, flake8, etc.)
+└─ README.md               # (this file)
 ```
 
 ---
 
-## 2. Installation
+## Key Algorithms
 
-From the project root, create a virtual environment and install dependencies:
+### `detect_peaks` (General Audio & HRIR)
 
-```bash
-python -m venv venv
-source venv/bin/activate        # or `venv\Scripts\activate` on Windows
-pip install -e .                # installs package and core deps from pyproject.toml
-pip install -r requirements-dev.txt  # installs pytest, h5py, soundfile, click, etc.
-```
+* Computes a normalized SNR profile to set an adaptive prominence threshold for peak detection.
+* Enforces a minimum inter-peak distance based on signal mode (`audio` vs. `hrir`).
+* Finds the top‑N most salient peaks (or troughs when inverting the signal) using SciPy’s `find_peaks`.
+* Returns integer indices of detected events for downstream analysis or plotting.
 
----
+### `detect_peaks_abr` (ABR)
 
-## 3. Quickstart
+* Applies adaptive Gaussian smoothing informed by local SNR to emphasize genuine ABR components.
+* Iteratively searches for candidate peaks, gradually relaxing prominence and separation constraints to handle variability across subjects.
+* Checks resulting inter-peak latencies against clinical normative ranges (I–III, III–V, I–V) to assign Waves I–V.
+* Outputs peak indices for each wave and a QC flag indicating whether all latency criteria are met.
 
-### Command-Line Usage
+### `label_hrir_peaks`
 
-Run the CLI directly via module invocation:
-
-```bash
-# Show ABR command help
-python -m toolbox.main abr --help
-
-# Detect peaks in BIDS EEG data (ABR) for subject '01'
-python -m toolbox.main abr /path/to/bids_dataset 01 --mode individual --sigma 0.06 --outdir results/abr
-
-# Show HRIR command help
-python -m toolbox.main hrir --help
-
-# Label peaks & troughs in an HRIR SOFA file
-python -m toolbox.main hrir data/sofa/CIPIC_subject001.sofa --receiver 0 --channel 1 --n_peaks 5 --outdir results/hrir
-```
-
-### Python API
-
-Use the core loader and peak‑finder functions in your scripts:
-
-```python
-import numpy as np
-from toolbox.data_loader import load_hrir_from_sofa
-from toolbox.peak_finder import detect_peaks
-
-# 1) Load a SOFA HRIR
-hrir, fs = load_hrir_from_sofa('data/sofa/CIPIC_subject001.sofa', channel='left')
-
-# 2) Build time vector in ms
-times_ms = np.arange(len(hrir)) / fs * 1000
-
-# 3) Detect the first 5 peaks with base sigma 1.0 ms
-peaks = detect_peaks(hrir, times_ms, n_peaks=5, base_sigma=1.0)
-print("Peak latencies (ms):", times_ms[peaks])
-```
+* Loads HRIR data from SOFA format and prepares a time vector in milliseconds.
+* Uses `detect_peaks` on the impulse response (and its inverse) to find arrival peaks and troughs.
+* Returns lists of (latency, amplitude) tuples for both peaks and troughs for convenient downstream use.
 
 ---
 
-## 4. Testing
-
-Run the full test suite locally with pytest:
-
-```bash
-pytest --maxfail=1 --disable-warnings -q
-```
-
-Coverage includes:
-
-- **Data loaders**: WAV/FLAC audio, SOFA HRIR files via h5py
-- **Peak‑finder**: SNR computation, adaptive smoothing, multi‑peak detection
-- **CLI**: sanity checks that `abr` and `hrir` commands parse args and write CSV/plots
-
----
-
-## 5. Core Functionality
-
-- **Data Loading** (`toolbox/data_loader.py`):
-  - `load_eeg_epochs`: BIDS/MNE EEG epochs for ABR analysis
-  - `load_audio_file`: WAV/FLAC import with optional resampling & mono conversion
-  - `load_hrir_from_sofa` / `load_hrtf_from_sofa`: Direct SOFA file parsing via h5py
-
-- **Peak Detection** (`toolbox/peak_finder.py`):
-  - `compute_snr_normalized`: SNR estimation over defined time windows
-  - `predict_wave_V_latency`: Anchor peak (Wave V) prediction using adaptive smoothing
-  - `detect_peaks`: Multi‑peak detection with SNR‑scaled prominence & distance constraints
-
-- **Plotting** (`toolbox/plotting.py`):
-  - `plot_abr`: ABR waveform + peak annotations + reference lines
-  - `plot_hrir`: HRIR impulse response + peak/trough markers
-
-- **CLI Entry‑point** (`toolbox/main.py`):
-  - `abr` subcommand for batch ABR processing
-  - `hrir` subcommand for HRIR peak/trough labeling
-
----
-
-*For questions, contributions, or to report issues, email brodymontag123@gmail.com.*
+*Maintained by Brody Montag. Feel free to open issues or PRs on GitHub.*
