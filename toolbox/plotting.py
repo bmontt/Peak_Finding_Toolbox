@@ -13,7 +13,7 @@ def plot_abr(
     mode: str,
     outdir: str,
     ref_lines=(1.5, 3.5, 6.0),
-    auto_zoom: bool = True,
+    auto_zoom: bool = False,
     window_margin_ms: float = 1.0,
 ):
     """
@@ -42,7 +42,7 @@ def plot_abr(
 
     # Reference lines
     for x in ref_lines:
-        ax.axvline(x, linestyle='--', alpha=0.7)
+        ax.axvline(x, linestyle='--', alpha=0.4)
 
     # Auto‑zoom
     if auto_zoom and all_peak_idxs:

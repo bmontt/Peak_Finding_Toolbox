@@ -1,0 +1,4 @@
+N5_evoked_ave100_F1_R2 2 48000 2002
+N5_evoked_ave100_F1_R2.dat 32 1.9328e-010/nV 32 0 0 0 0 ABR
+N5_evoked_ave100_F1_R2.dat 32 0.26327/V 32 0 0 0 0 OAE
+##<SPL>: 100 <Stim Freq (kHz)>:1 <Ear>: r <Total Trials Used>:2934 <wnsfmp>:7.8852 <residual noise level>: 3.4153 <Condition>: Normal

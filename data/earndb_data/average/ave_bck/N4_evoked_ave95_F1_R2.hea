@@ -1,0 +1,4 @@
+N4_evoked_ave95_F1_R2 2 48000 2002
+N4_evoked_ave95_F1_R2.dat 32 1.4705e-010/nV
+N4_evoked_ave95_F1_R2.dat 32 0.14677/V
+##<SPL>: 95 <Stim Freq (kHz)>:1 <Ear>: r <Total Trials Used>:1464 <wnsfmp>:1.3914 <residual noise level>: 12.6316 <Condition>: Normal

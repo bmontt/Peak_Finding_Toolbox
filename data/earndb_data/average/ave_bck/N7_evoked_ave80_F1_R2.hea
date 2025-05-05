@@ -1,0 +1,4 @@
+N7_evoked_ave80_F1_R2 2 48000 2002
+N7_evoked_ave80_F1_R2.dat 32 2.3688e-010/nV
+N7_evoked_ave80_F1_R2.dat 32 0.028397/V
+##<SPL>: 80 <Stim Freq (kHz)>:1 <Ear>: r <Total Trials Used>:3929 <wnsfmp>:12.531 <residual noise level>: 3.6681 <Condition>: Normal

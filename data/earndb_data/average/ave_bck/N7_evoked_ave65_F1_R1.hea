@@ -1,0 +1,4 @@
+N7_evoked_ave65_F1_R1 2 48000 2002
+N7_evoked_ave65_F1_R1.dat 32 1.7673e-010/nV
+N7_evoked_ave65_F1_R1.dat 32 0.0049321/V
+##<SPL>: 65 <Stim Freq (kHz)>:1 <Ear>: r <Total Trials Used>:4056 <wnsfmp>:12.3322 <residual noise level>: 2.6648 <Condition>: Normal

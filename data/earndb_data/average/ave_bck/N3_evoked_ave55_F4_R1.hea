@@ -1,0 +1,4 @@
+N3_evoked_ave55_F4_R1 2 48000 2002
+N3_evoked_ave55_F4_R1.dat 32 3.7317e-011/nV
+N3_evoked_ave55_F4_R1.dat 32 0.0018137/V
+##<SPL>: 55 <Stim Freq (kHz)>:4 <Ear>: r <Total Trials Used>:6078 <wnsfmp>:0.76977 <residual noise level>: 1.66 <Condition>: Normal

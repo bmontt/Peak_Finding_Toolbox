@@ -1,0 +1,4 @@
+N3_evoked_ave70_F1_R2 2 48000 2002
+N3_evoked_ave70_F1_R2.dat 32 8.3618e-011/nV 32 0 0 0 0 ABR
+N3_evoked_ave70_F1_R2.dat 32 0.022697/V 32 0 0 0 0 OAE
+##<SPL>: 70 <Stim Freq (kHz)>:1 <Ear>: r <Total Trials Used>:5929 <wnsfmp>:1.6724 <residual noise level>: 2.1329 <Condition>: Normal

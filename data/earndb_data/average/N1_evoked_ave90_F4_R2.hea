@@ -1,0 +1,4 @@
+N1_evoked_ave90_F4_R2 2 48000 2002
+N1_evoked_ave90_F4_R2.dat 32 1.1706e-010/nV 32 0 0 0 0 ABR
+N1_evoked_ave90_F4_R2.dat 32 0.13261/V 32 0 0 0 0 OAE
+##<SPL>: 90 <Stim Freq (kHz)>:4 <Ear>: r <Total Trials Used>:3904 <wnsfmp>:1.1365 <residual noise level>: 7.7491 <Condition>: Normal

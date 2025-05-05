@@ -1,0 +1,4 @@
+N4_evoked_ave30_F1_R2 2 48000 2002
+N4_evoked_ave30_F1_R2.dat 32 4.5883e-011/nV
+N4_evoked_ave30_F1_R2.dat 32 8.618e-005/V
+##<SPL>: 30 <Stim Freq (kHz)>:1 <Ear>: r <Total Trials Used>:4932 <wnsfmp>:0.6492 <residual noise level>: 2.4933 <Condition>: Normal
