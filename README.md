@@ -1,4 +1,4 @@
-# Peak\_Finding\_Toolbox
+# Peak Finding Toolbox for Auditory Analysis
 
 A Python toolkit for detecting and visualizing peaks in electrophysiological and audio signals.
 
