@@ -4,7 +4,7 @@ from toolbox.peak_finder import detect_peaks
 from toolbox.plotting import scroll_plot, plot_abr, plot_hrir
 
 # 1) Load a SOFA HRIR
-hrir, fs = load_hrir_from_sofa('tests/fixtures/sofa/hpir_SennheiserHD650_nh830.sofa', channel='left')
+hrir, fs = load_hrir_from_sofa('tests/hrtf_data/sofa/hpir_SennheiserHD650_nh830.sofa', channel='left')
 
 # 2) Build time vector in ms
 times_ms = np.arange(len(hrir)) / fs * 1000
