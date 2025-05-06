@@ -6,6 +6,7 @@ Adaptive and classical peak detection for ABR, HRIR, and general audio signals.
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks
+import itertools
 
 # === Parameter Definitions ===
 # ABR-specific
@@ -55,18 +56,6 @@ def scale_prominence(snr: float) -> float:
     snr = np.clip(snr, 0, 1)
     return PROMINENCE_BASE + (PROMINENCE_HIGH - PROMINENCE_BASE)*(1 - snr**PROMINENCE_EXPONENT)
 
-
-import itertools
-
-import itertools
-import numpy as np
-from scipy.ndimage import gaussian_filter1d
-from scipy.signal import find_peaks
-
-import itertools
-import numpy as np
-from scipy.ndimage import gaussian_filter1d
-from scipy.signal import find_peaks
 
 # normative inter‑peak windows (ms)
 IP_I_III = (1.80, 2.30)
@@ -166,8 +155,13 @@ def _detect_peaks_abr(data_uv, times_ms, n_peaks=5, base_sigma=1.0):
         IP_III_V[0] <= lat35 <= IP_III_V[1] and
         IP_I_V[0]   <= lat15 <= IP_I_V[1]
     )
-
-    return (peaks, qc)
+    
+    priority = [4, 0, 2, 1, 3]                # indices into `peaks`
+    n = min(n_peaks, peaks.size)
+    # grab them and then sort by time
+    selected = np.sort(peaks[ priority[:n] ])
+    
+    return selected, qc
 
 
 def _detect_peaks_hrir(data, times_ms, n_peaks, base_sigma):
